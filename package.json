@@ -9,7 +9,7 @@
         "test": "jest"
     },
     "devDependencies": {
-        "babel-plugin-tester": "^8.0.1",
+        "babel-plugin-tester": "^7.0.4",
         "jest": "^25.1.0"
     }
 }

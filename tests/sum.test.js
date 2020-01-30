@@ -8,8 +8,8 @@ pluginTester({
     tests: [
         {
             title: 'simple case',
-            code: 'foo === bar',
-            output: 'left === right'
+            code: 'foo === bar;',
+            output: 'left === right;'
         }
     ]
 })
