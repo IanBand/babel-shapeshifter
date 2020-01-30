@@ -1,0 +1,13 @@
+{
+    "plugins": [
+        [
+            "specify-imports",{
+                "imports": [
+                    "module1",
+                    "module2",
+                    "module5"
+                ]
+            }
+        ]
+    ]
+}

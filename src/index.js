@@ -1,4 +1,4 @@
-module.exports = function myPlugin({types: t}) {
+module.exports = function specifyImport({types: t}) {
     return {
         visitor: {
             BinaryExpression(path) {
