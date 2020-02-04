@@ -1,0 +1,1 @@
+import anything from 'node-module';

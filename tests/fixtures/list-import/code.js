@@ -1,0 +1,1 @@
+import selectedModules from './modules/[list]'; 
