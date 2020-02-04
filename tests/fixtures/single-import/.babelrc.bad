@@ -1,7 +1,7 @@
 {
     "plugins": [
         [
-            "specify-imports",{
+            "specifyImport",{
                 "imports": [
                     "module1",
                     "module2",
