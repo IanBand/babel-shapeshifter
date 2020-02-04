@@ -1,5 +1,3 @@
-const modules = require('./modules.js');
-
 module.exports = function specifyImport({types: t}) {
     return {
         visitor: {
@@ -15,8 +13,12 @@ module.exports = function specifyImport({types: t}) {
                 const si_regex = /.*\/\[list\]$/; //should match "/[list]" at end of string
                 if(!si_regex.test(sourceDir)) return;
 
+                if(!state.opts.modules){
+                    console.warn("No modules specified in options");
+                    return;
+                }
+
                 // extract pathname
-                
                 let pathName = sourceDir.slice(0, sourceDir.indexOf('[list]'));
 
                 // save obj name
@@ -33,6 +35,7 @@ module.exports = function specifyImport({types: t}) {
                 );
 
                 //loop through specified list
+                let modules = state.opts.modules;
                 for(let i = 0; i < modules.length; ++i){
 
                     let internalModName = `selectedModule${i}`;
