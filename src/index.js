@@ -5,14 +5,14 @@ module.exports = function specifyImport({types: t}) {
 
                 let sourceDir = path.node.source.value;
 
-                // Don't do anything if not a relative path
-                // if if not a relative path then a module
+                // if not a relative path, ignore
                 if (sourceDir[0] !== "." && sourceDir[0] !== "/") return;
                 
                 // if regex does not match, dont do anything
                 const si_regex = /.*\/\[list\]$/; //should match "/[list]" at end of string
                 if(!si_regex.test(sourceDir)) return;
 
+                // check that modules exist 
                 if(!state.opts.modules){
                     console.warn("No modules specified in options");
                     return;
@@ -24,7 +24,7 @@ module.exports = function specifyImport({types: t}) {
                 // save obj name
                 let listobj = path.node.specifiers[0].local.name;
 
-                // replace with list object
+                // replace import with list object
                 path.replaceWith(
                     t.variableDeclaration("const", [
                         t.variableDeclarator(
@@ -40,9 +40,7 @@ module.exports = function specifyImport({types: t}) {
 
                     let internalModName = `selectedModule${i}`;
 
-
                     // add import to obj
-                    // selectedModules.userDefModule = selectedModule0;
                     path.insertAfter(
                         t.expressionStatement(
                             t.assignmentExpression("=", 
@@ -55,7 +53,6 @@ module.exports = function specifyImport({types: t}) {
                             )
                         )
                     );
-
                     
                     //add specific import dec
                     path.insertAfter(
@@ -66,10 +63,7 @@ module.exports = function specifyImport({types: t}) {
                             t.stringLiteral(pathName + modules[i])
                         )
                     );
-
-                    
                 }
-
             }
         }
     };
