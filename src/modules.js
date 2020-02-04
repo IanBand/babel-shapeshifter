@@ -1,3 +1,3 @@
 module.exports = [
-    'module1',
+    'myCustomModule',
 ];
