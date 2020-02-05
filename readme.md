@@ -10,8 +10,8 @@ In your .babelrc, specify the imports by defining the 'modules' array. Module na
 ``` javascript
 {
     plugins: [
-        ['specify-imports', {
-            'modules': [
+        ["specify-imports", {
+            "modules": [
                 "myModule",
                 "myOtherModule",
                 "myThirdModule"
