@@ -10,7 +10,7 @@ In your .babelrc, specify the imports by defining the 'modules' array. Module na
 ``` javascript
 {
     plugins: [
-        ['specify-import', {
+        ['specify-imports', {
             'modules': [
                 "myModule",
                 "myOtherModule",
@@ -21,7 +21,7 @@ In your .babelrc, specify the imports by defining the 'modules' array. Module na
 }
 ```
 
-In the file that you want to import your modules into, indicate that you will be using Specify Import by using the '\[list]' identifier and a relative path. Specify Import will not modify any other imports.
+In the file that you want to import your modules into, indicate that you will be using Specify Imports by using the '\[list]' identifier and a relative path. Specify Imports will not modify any other imports.
 ```javascript
 import myModules from './modules/[list]'; 
 ```
