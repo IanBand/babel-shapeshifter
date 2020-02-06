@@ -10,7 +10,7 @@ In your .babelrc, or wherever your plugins are defined, specify the imports by d
 ``` javascript
 {
     plugins: [
-        ["specify-imports", {"moduleListPath": "path/to/settings.js"}]
+        ["babel-specify-imports", {"moduleListPath": "path/to/settings.js"}]
     ]
 }
 ```

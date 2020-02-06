@@ -1,8 +1,8 @@
 {
-    "name": "babel-plugin-tester",
+    "name": "babel-specify-imports",
     "version": "1.0.0",
-    "main": "index.js",
-    "author": "Ian Band",
+    "main": "src/index.js",
+    "author": "ian.r.band@gmail.com",
     "license": "MIT",
     "private": false,
     "scripts": {
