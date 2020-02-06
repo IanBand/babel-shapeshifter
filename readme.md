@@ -14,7 +14,7 @@ In your .babelrc, or wherever your plugins are defined, specify the imports by d
 ``` javascript
 {
     plugins: [
-        ["babel-specify-imports", {"moduleListPath": "path/to/settings.js"}]
+        ["specify-imports", {"moduleListPath": "path/to/settings.js"}]
     ]
 }
 ```
