@@ -1,3 +1,6 @@
+const _path = require('path');
+//const _fs = require('fs');
+
 module.exports = function specifyImport({types: t}) {
     return {
         visitor: {
@@ -12,10 +15,17 @@ module.exports = function specifyImport({types: t}) {
                 const si_regex = /.*\/\[list\]$/; //should match "/[list]" at end of string
                 if(!si_regex.test(sourceDir)) return;
 
-                // check that modules exist 
-                if(!state.opts.modules){
+
+                // check that module list file was specified in settings
+                if(!state.opts.moduleListPath){
                     console.warn("No modules specified in options");
                     return;
+                }
+
+                // get list of modules from file
+                if(!state.moduleList){
+                    // look for file in cwd
+                    state.moduleList = require(_path.join(process.cwd(), state.opts.moduleListPath)).moduleList;
                 }
 
                 // extract pathname
@@ -35,7 +45,7 @@ module.exports = function specifyImport({types: t}) {
                 );
 
                 //loop through specified list
-                let modules = state.opts.modules;
+                let modules = state.moduleList;
                 for(let i = 0; i < modules.length; ++i){
 
                     let internalModName = `selectedModule${i}`;
