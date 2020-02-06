@@ -1,7 +1,7 @@
 {
   "name": "babel-specify-imports",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "author": "ian.r.band@gmail.com",
   "license": "MIT",
   "private": false,
