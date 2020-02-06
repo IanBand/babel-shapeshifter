@@ -68,12 +68,12 @@ myModules["myModule"] =  myModule0;
 
 The modules can be referenced like any object member
 ```javascript 
-myModules.myOtherModule1
+myModules.myOtherModule1.doSomething();
 ```
 
 But its typically most useful to iterate through the parent object with a for...in loop, or another method.
 ```javascript
-for(const module in myModules){
+for(const myModule in myModules){
     // do something with each imported module
 }
 ```
