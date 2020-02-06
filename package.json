@@ -1,6 +1,6 @@
 {
   "name": "specify-imports",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "lib/index.js",
   "author": "ian.r.band@gmail.com",
   "license": "MIT",
