@@ -16,7 +16,8 @@ In your .babelrc, or wherever your plugins are defined, specify the imports by d
         ["specify-imports", {
             "moduleListPath": "path/to/settings.js",
             "extensions" : 'js',
-            }]
+            }
+        ]
     ]
 }
 ```
