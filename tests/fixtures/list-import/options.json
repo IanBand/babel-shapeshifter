@@ -1,3 +1,4 @@
 {
-    "moduleListPath": "tests/fixtures/list-import/settings.js" 
+    "moduleListPath": "tests/fixtures/list-import/settings.js",
+    "extensions": "js"
 }

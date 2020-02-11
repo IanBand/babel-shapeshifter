@@ -2,19 +2,21 @@
 
 A Babel plugin that allows you to specify your imports based off a config file.
 
-A good use case for this plugin would be a project that will be built many different times, and each build requires a different set of components. Instead of inculding each component for every different build, you can use Specify Imports to import only use the required modules based off of a configuration file.
+A good use case for this plugin would be a project that will be built many different times, and each build requires a different set of components. Instead of inculding each component for every different build, you can use Specify Imports to import only the required modules for that build.
 
 # Installation
 ```
 $ npm install babel-specify-imports
 ```
 # Usage
-
 In your .babelrc, or wherever your plugins are defined, specify the imports by defining moduleListPath. This path is relative to process.cwd().
 ``` javascript
 {
     plugins: [
-        ["specify-imports", {"moduleListPath": "path/to/settings.js"}]
+        ["specify-imports", {
+            "moduleListPath": "path/to/settings.js",
+            "extensions" : 'js',
+            }]
     ]
 }
 ```
@@ -62,11 +64,11 @@ import myModules from './modules/[list]';
 This will cause the above import statement to transpile into:
 ```javascript
 const myModules = {};
-import  myThirdModule2 from "./modules/myThirdModule";
+import  myThirdModule2 from "./modules/myThirdModule.js";
 myModules["myThirdModule"] =  myThirdModule2;
-import  myOtherModule1 from "./modules/myOtherModule";
+import  myOtherModule1 from "./modules/myOtherModule.js";
 myModules["myOtherModule"] =  myOtherModule1;
-import  myModule0 from "./modules/myModule";
+import  myModule0 from "./modules/myModule.js";
 myModules["myModule"] =  myModule0;
 ```
 
@@ -81,10 +83,11 @@ for(const myModule in myModules){
     // do something with each imported module
 }
 ```
+# Other Features
+Specify Input checks for the existance of a file before including it.
 
 # Future Features
-- Check for the existance of a file before including it
-- Allow the specification of file types, not just module names
+- Allow for granular specification of file types, or, let users associate module names with file extensions
 - Support multiple list identifiers. eg: \[list1], \[list2]
 
 

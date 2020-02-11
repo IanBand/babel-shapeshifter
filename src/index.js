@@ -1,5 +1,5 @@
 const _path = require('path');
-//const _fs = require('fs');
+const _fs = require('fs');
 
 module.exports = function specifyImport({types: t}) {
     return {
@@ -48,7 +48,12 @@ module.exports = function specifyImport({types: t}) {
                 let modules = state.moduleList;
                 for(let i = 0; i < modules.length; ++i){
 
+                    let file_extension = state.opts.extensions ? '.' + state.opts.extensions : '';
+                    let fullPath = pathName + modules[i] + file_extension;
                     let internalModName = `selectedModule${i}`;
+
+                    // check if file exists, if not, try next module
+                    if(!_fs.existsSync(_path.join(_path.dirname(state.file.opts.filename), fullPath.substring(1)))) continue;
 
                     // add import to obj
                     path.insertAfter(
@@ -70,7 +75,7 @@ module.exports = function specifyImport({types: t}) {
                             [t.importDefaultSpecifier(
                                 t.identifier(internalModName)
                             )],
-                            t.stringLiteral(pathName + modules[i])
+                            t.stringLiteral(fullPath)
                         )
                     );
                 }
