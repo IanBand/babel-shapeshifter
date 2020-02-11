@@ -85,7 +85,7 @@ for(const myModule in myModules){
 }
 ```
 # Other Features
-Specify Input checks for the existance of a file before including it.
+Specify Imports checks for the existance of a file before including it.
 
 # Future Features
 - Allow for granular specification of file types, or, let users associate module names with file extensions
