@@ -11,7 +11,11 @@ const settings = {
         {
             moduleName: "awesomeComponent",
             viewSettings: {}
-        }
+        },
+        {
+            moduleName: "thisModuleDoesNotExist",
+            viewSettings: {}
+        },
     ]
 }
 module.exports = {
