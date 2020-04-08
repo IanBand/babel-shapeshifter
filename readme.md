@@ -87,9 +87,28 @@ for(const myModule in myModules){
 # Other Features
 Specify Imports checks for the existance of a file before including it.
 
-# Future Features
-- Allow for granular specification of file types, or, let users associate module names with file extensions
-- Support multiple list identifiers. eg: \[list1], \[list2]
+# Development
+
+Install Jest globally with:
+```bash
+$ yarn global add jest
+```
+If 'yarn install' is giving you trouble because of something like:
+```bash
+error fsevents@2.1.2: The platform "win32" is incompatible with this module.
+error Found incompatible module.
+```
+
+Then do:
+```bash
+$ yarn install --ignore-platform
+```
+
+## Testing
+Just run:
+```bash
+$ jest
+```
 
 
 # References

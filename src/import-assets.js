@@ -1,7 +1,7 @@
 const _path = require('path');
 const _fs = require('fs');
 
-module.exports = function specifyImport({types: t}) {
+module.exports = function ImportAssets({types: t}) {
     return {
         visitor: {
             ImportDeclaration(path, state){
@@ -12,24 +12,34 @@ module.exports = function specifyImport({types: t}) {
                 if (sourceDir[0] !== "." && sourceDir[0] !== "/") return;
                 
                 // if regex does not match, dont do anything
-                const si_regex = /.*\/\[list\]$/; //should match "/[list]" at end of string
-                if(!si_regex.test(sourceDir)) return;
+                const regex = /.*\/\{[a-zA-Z0-9]+\}$/; //should match "/{folderList}" at end of string
+                if(!regex.test(sourceDir)) return;
 
-
-                // check that module list file was specified in settings
-                if(!state.opts.moduleListPath){
-                    console.warn("No modules specified in options");
+                // check that configFilePath was specified in settings
+                if(!state.opts.configFilePath){
+                    console.warn(`"configFilePath" is not specified in options`);
                     return;
                 }
 
-                // get list of modules from file
-                if(!state.moduleList){
-                    // look for file in cwd
-                    state.moduleList = require(_path.join(process.cwd(), state.opts.moduleListPath)).moduleList;
+                // extract list from path identifier: ./my/path/to/{folderList} => folderList
+                let listName = sourceDir.slice(sourceDir.indexOf('{') + 1, sourceDir.indexOf('}'));
+
+                console.log(listName,state.opts.configFilePath);
+
+                return;
+
+                // check if list is defined in config file ***THIS IS WHERE IT STARTS TO DIFFER***
+                if(!state[listName]){
+                    state[listName] = require(_path.join(process.cwd(), state.opts.configFilePath))[listName];
+
+                    if(!state[listName]){
+                        console.error(`"${listName}" is not defined as an export of "${state.opts.configFilePath}"`);
+                        return;
+                    }
                 }
 
                 // extract pathname
-                let pathName = sourceDir.slice(0, sourceDir.indexOf('[list]'));
+                let pathName = sourceDir.slice(0, sourceDir.indexOf(`[${listName}]`));
 
                 // save obj name
                 let listobj = path.node.specifiers[0].local.name;
@@ -45,15 +55,15 @@ module.exports = function specifyImport({types: t}) {
                 );
 
                 //loop through specified list
-                let modules = state.moduleList;
+                let modules = state[listName];
                 for(let i = 0; i < modules.length; ++i){
 
                     let file_extension = state.opts.extensions ? '.' + state.opts.extensions : '';
                     let fullPath = pathName + modules[i] + file_extension;
-                    let internalModName = `selectedModule${i}`;
+                    let internalModName = `SPECIFY_IMPORTS_MODULE_${i}`;
 
                     // check if file exists, if not, try next module
-                    if(!_fs.existsSync(_path.join(_path.dirname(state.file.opts.filename), fullPath.substring(1)))) continue;
+                    if(!_fs.existsSync(_path.join(_path.dirname(state.file.opts.filename), fullPath))) continue;
 
                     // add import to obj
                     path.insertAfter(
