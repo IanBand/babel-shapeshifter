@@ -6,6 +6,13 @@ const path = require('path');
 
 pluginTester({
     plugin: importModules,
-    pluginName: 'specify import',
-    fixtures: path.join(__dirname, 'fixtures'),
+    pluginName: 'config-import-modules',
+    fixtures: path.join(__dirname, 'module-fixtures'),
+})
+
+
+pluginTester({
+    plugin: importAssets,
+    pluginName: 'config-import-assets',
+    fixtures: path.join(__dirname, 'asset-fixtures'),
 })

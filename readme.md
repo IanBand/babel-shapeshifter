@@ -4,6 +4,20 @@ A Babel plugin that allows you to specify your imports based off a config file.
 
 A good use case for this plugin would be a project that will be built many different times, and each build requires a different set of components. Instead of inculding each component for every different build, you can use Specify Imports to import only the required modules for that build.
 
+
+You specify which list of imports you want to use in your JS files by using the es6 import statements:
+``` js
+import stuff from "[myList]"
+```
+
+the plugin then looks up the definition of "myList" then imports the defined modules at compile time.
+
+Its possible to define myList in any way you want, although it is intended to be defined as a map of a configuration json object.
+
+This way, it becomes possible to completely define the structure of a build with a single JSON configuration file. 
+
+
+
 # Installation
 ```
 $ npm install babel-specify-imports

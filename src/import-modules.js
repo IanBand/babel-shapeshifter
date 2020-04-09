@@ -7,8 +7,6 @@ module.exports = function ImportModules({types: t}) {
         visitor: {
             ImportDeclaration(path, state){
 
-                console.log('hello babel')
-
                 let sourceDir = path.node.source.value;
 
                 // if not a relative path, ignore
