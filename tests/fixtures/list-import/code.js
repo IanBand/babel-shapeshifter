@@ -1,1 +1,1 @@
-import selectedModules from './modules/[list]'; 
+import selectedModules from './modules/[testlList]'; 

@@ -20,5 +20,5 @@ const settings = {
 }
 module.exports = {
     settings: settings,
-    moduleList: settings.views.map(view => view.moduleName)
+    testlList: settings.views.map(view => view.moduleName)
 }

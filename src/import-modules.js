@@ -7,6 +7,8 @@ module.exports = function ImportModules({types: t}) {
         visitor: {
             ImportDeclaration(path, state){
 
+                console.log('hello babel')
+
                 let sourceDir = path.node.source.value;
 
                 // if not a relative path, ignore
@@ -57,7 +59,7 @@ module.exports = function ImportModules({types: t}) {
 
                     let file_extension = state.opts.extensions ? '.' + state.opts.extensions : '';
                     let fullPath = pathName + modules[i] + file_extension;
-                    let internalModName = `SPECIFY_IMPORTS_MODULE_${i}`;
+                    let internalModName = `CONFIG_IMPORTED_MODULE_${i}`;
 
                     // check if file exists, if not, try next module
                     if(!_fs.existsSync(_path.join(_path.dirname(state.file.opts.filename), fullPath))) continue;
