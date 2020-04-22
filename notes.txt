@@ -1,0 +1,10 @@
+one master asset folder
+
+each source file contains a ***relative path to*** the master asset folder
+
+entrypoints are paths that are ***relative to the*** master asset folder
+
+source file -> master asset dir -> entry point within master asset.
+
+
+ 

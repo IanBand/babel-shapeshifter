@@ -1,7 +1,7 @@
-import _path from 'path';
-import _fs from 'fs';
+const _path = require('path');
+const _fs = require('fs');
 
-export default function (babel) {
+module.exports = function (babel) {
     const { types: t } = babel;
 
     return {
@@ -20,33 +20,31 @@ export default function (babel) {
 
                 let filterNames = []; // e.g. A, B, C
 
-                // has a /* specifing explicitly to use wildcard
-                const wildcardRegex = /\/([^\/]*\*[^\/]*)$/;
-                let isExplicitWildcard = wildcardRegex.test(src);
-                let filenameRegex = new RegExp('.+');
+                /*
+                ListName is the list of entry points, relative to src
+                */
+                
+                const regex = /.*\/\{[a-zA-Z0-9]+\}$/; //should match "/{listName}" at end of string
+                let isExplicitWildcard = regex.test(src);
+                
 
-                // in the above case we need to remove the trailing /*
-                if (isExplicitWildcard) {
-                    const lastSlash = path.node.source.value.lastIndexOf('/');
-                    src = path.node.source.value.substring(0, lastSlash);
-                    const filenameGlob = path.node.source.value.substring(lastSlash + 1);
-                    path.node.source.value = src;
-                    filenameRegex = filenameGlob.replace(/[*\.\(\[\)\]]/g, character => {
-                        switch(character) {
-                            case '*':
-                                return '.*';
-                            case '(':
-                            case ')':
-                            case '[':
-                            case ']':
-                            case '.':
-                                return '\\' + character;
-                        }
-                        return character;
-                    });
-                    filenameRegex = new RegExp(filenameRegex);
+
+                const lastSlash = path.node.source.value.lastIndexOf('/');
+                src = path.node.source.value.substring(0, lastSlash);
+
+                let entryPointListName = path.node.source.value.substring(lastSlash + 2).slice(0,-1);
+
+                // check that configFilePath was specified in settings
+                if(!state.opts.configFilePath){
+                    console.error(`"configFilePath" is not specified in options`);
+                    return;
                 }
 
+                let entryPoints = require(_path.join(process.cwd(), state.opts.configFilePath)).assetEntryPoints;
+
+                console.log('entryPoints:', entryPoints);
+                console.log('src: ', src);
+                
 
                 // Get current filename so we can try to determine the folder
                 var name = state.file.opts.filename;
@@ -55,44 +53,11 @@ export default function (babel) {
                 var isDirs = [];
                 var dir = _path.join(_path.dirname(name), src); // path of the target dir.
 
-                for (var i = node.specifiers.length - 1; i >= 0; i--) {
-                    dec = node.specifiers[i];
-
-                    if (
-                        t.isImportNamespaceSpecifier(dec) &&
-                        _fs.existsSync(dir) &&
-                        !_fs.statSync(dir).isFile()
-                    ) {
-                        addWildcard = true;
-                        wildcardName = node.specifiers[i].local.name;
-                        node.specifiers.splice(i, 1);
-                    }
-
-                    // This handles { A, B, C } from 'C/*'
-                    if (t.isImportSpecifier(dec) && isExplicitWildcard) {
-                        // original: the actual name to lookup
-                        // local: the name to import as, may be same as original
-                        // We do this because of `import { A as B }`
-                        filterNames.push({
-                            original: dec.imported.name,
-                            local: dec.local.name
-                        });
-
-                        addWildcard = true;
-
-                        // Remove the specifier
-                        node.specifiers.splice(i, 1);
-                    }
-                }
-
-                // If they are no specifies but it is explicit
-                if (isExplicitWildcard) {
-                    addWildcard = true;
-                    wildcardName = null;
-                }
+                console.log(dir);
 
                 // All the extensions that we should look at
-                var exts = state.opts.exts || ["js", "es6", "es", "jsx"];
+                let exts = state.opts.exts || ["js", "es6", "es", "jsx"];
+                let filenameRegex = new RegExp('.+');
 
                 if (addWildcard) {
                     // Add the original object. `import * as A from 'foo';`
@@ -114,6 +79,9 @@ export default function (babel) {
                         for (var i = 0; i < r.length; i++) {
                             // Check extension is of one of the aboves
                             const {name, ext} = _path.parse(r[i]);
+                            
+                            if(name == '.DS_Store') continue;
+
                             if (exts.indexOf(ext.substring(1)) > -1 && filenameRegex.test(name)) {
                                 files.push(r[i]);
                                 isDirs.push(!ext);

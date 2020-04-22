@@ -1,1 +1,1 @@
-import assets from "{assets}";
+import assets from "./masterAssetsFolder/{myEntryPoints}";

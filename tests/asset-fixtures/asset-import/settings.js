@@ -3,7 +3,7 @@ const settings = {
         {
             moduleName: "myModule",
             viewSettings: {},
-            assetFolderPath: "/path/to/myModuleAssets"
+            assetFolderPath: "/love"
         },
         {
             moduleName: "aCustomModule",
@@ -12,7 +12,7 @@ const settings = {
         {
             moduleName: "awesomeComponent",
             viewSettings: {},
-            assetFolderPath: "/path/to/awesomeAssets"
+            assetFolderPath: "/royal"
         },
         {
             moduleName: "thisModuleDoesNotExist",
