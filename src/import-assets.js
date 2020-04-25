@@ -29,30 +29,29 @@ module.exports = function ImportAssets({types: t}) {
                 const lastSlash = path.node.source.value.lastIndexOf('/');
                 const pathToAssetFolder = path.node.source.value.substring(0, lastSlash);
 
-                console.log(
+                /*console.log(
                     "import-assets --\n",
                     "config file path:\n", 
                     state.opts.configFilePath, 
                     "assetEntryPoints:\n",
                     entryPoints);
-
+                */
 
 
                 // get import object identifier
                 // import myAssets from "{assets}" => myAssets
-                console.log(path.node.specifiers[0].local.name);
-                let assetsIdentifier = path.node.specifiers[0].local.name;
+                //console.log(path.node.specifiers[0].local.name);
+                let masterIdentifier = path.node.specifiers[0].local.name;
 
                 // create asset object. 'import myAssets from "{assets}";'
                 // this creates 'const myAssets = {};'
                 let obj = t.variableDeclaration("const", [
                     t.variableDeclarator(
-                        t.identifier(assetsIdentifier),
+                        t.identifier(masterIdentifier),
                         t.objectExpression([])
                     )
                 ]);
                 path.insertBefore(obj);
-
 
                 const filenameRegex = new RegExp('.+');
                 // All the extensions that we should look at
@@ -60,31 +59,31 @@ module.exports = function ImportAssets({types: t}) {
                     "png", "jpg", "gif", "jpeg", "svg", "mp3", "json", ""];
                 let sourceFileName = state.file.opts.filename;
 
-                console.log(`found ${entryPoints.length} possible entrypoints`);
+                //console.log(`found ${entryPoints.length} possible entrypoints`);
 
                 //for each entry point, import all assets
                 for( let entry_idx = 0; entry_idx < entryPoints.length; entry_idx++ ) {
 
-                    console.log(entryPoints[entry_idx]);
+                    //console.log(entryPoints[entry_idx]);
 
                     //skip blank or invalid entrypoints
                     if(!entryPoints[entry_idx]) continue;
 
                     // source -> assets -> entryPoint
                     let entryPointDir =_path.join(_path.dirname(sourceFileName), pathToAssetFolder, entryPoints[entry_idx]); // path of the final target dir.
-                    console.log('dir!: ', entryPointDir);
+                    //console.log('dir!: ', entryPointDir);
 
                     let entry = _path.basename(entryPointDir);
-                    console.log("entry: ", entry);
+                    //console.log("entry: ", entry);
 
-                    // assign entry point object to asset object
+                    // assign entry point object to master object
                     // this creates 'myAssets.entry = {};'
 
                     let entryAssignment = t.expressionStatement(
                         t.assignmentExpression(
                             "=", 
                             t.memberExpression( //left side of assignment
-                                t.identifier(assetsIdentifier), //object 
+                                t.identifier(masterIdentifier), //object 
                                 t.identifier(entry)  //member of object
                             ),  
                             t.objectExpression([]) //right side of assignment
@@ -93,7 +92,7 @@ module.exports = function ImportAssets({types: t}) {
 
 
                     // dfs import all assets starting from entrypoint
-                    treeCopy(entryPointDir, entry, path, filenameRegex, fileExtensionsToImport, t);
+                    treeCopy(entryPointDir, entry, masterIdentifier, path, filenameRegex, fileExtensionsToImport, t);
                     
                 }
                 // remove original import statement 
@@ -119,7 +118,7 @@ module.exports = function ImportAssets({types: t}) {
  * 
  * 
  */
-function treeCopy(curpath, entry, babelPath, filenameRegex, fileExtensionsToImport, t){
+function treeCopy(curpath, entry, masterIdentifier, babelPath, filenameRegex, fileExtensionsToImport, t){
 
     //create object assignment
     // (curpath, root) => (root.path.to.curpath.[node at curpath]) => assign to empty obj
@@ -140,7 +139,7 @@ function treeCopy(curpath, entry, babelPath, filenameRegex, fileExtensionsToImpo
             isDirs.push(!ext);
         }
     }
-    console.log("files:", files, isDirs);
+    //console.log("files:", files, isDirs);
 
     //check for empty folder
     if(files.len <= 0) return;
@@ -149,23 +148,18 @@ function treeCopy(curpath, entry, babelPath, filenameRegex, fileExtensionsToImpo
 
         if(!isDirs[i]){ //import files
 
-            makeImportStatement(curpath + _path.sep + files[i], files[i], babelPath, t);
+            makeImportStatement(curpath + _path.sep + files[i], entry, masterIdentifier, babelPath, t);
         }
         else{ //recurse over dirs
             //append dirname to curpath
-            treeCopy(curpath + _path.sep + files[i], entry, babelPath, filenameRegex, fileExtensionsToImport, t);
+            treeCopy(curpath + _path.sep + files[i], entry, masterIdentifier, babelPath, filenameRegex, fileExtensionsToImport, t);
         }
     }
 }
-/**
- * 
- * @param {string} identifier 
- * @param {string} accessorPath 
- * @param {Object} babelPath 
- */
-function makeImportStatement(path, fileName, babelPath, t){
+
+function makeImportStatement(path, entry, masterIdentifier, babelPath, t){
     //assign import to object assignment
-    console.log('importing ' + fileName +  ' from ' + path + ';');
+    //console.log('importing ' + fileName +  ' from ' + path + ';');
 
     // generate unique identifier to hold imported file
     let id = babelPath.scope.generateUidIdentifier("userDefinedImport");
@@ -176,16 +170,27 @@ function makeImportStatement(path, fileName, babelPath, t){
         t.stringLiteral(path)
     );
 
+    // derive the list of member accessors
+    let dirnames = path.split(_path.sep);
+    //console.log("dirnames ", dirnames);
+    //console.log("entry index: ", dirnames.indexOf(entry));
 
-    //let members = path.split('/');
-    //if (members[0] === '') members.shift();
-    let members = path.split(_path.sep);
-    console.log("members ", members);
     //need members/path relative to entry point...
+    let members = dirnames.slice(dirnames.indexOf(entry));
+    let last = members.length - 1;
+    members[last] = members[last].split('.')[0]; //strip file extension
+
+    /* FORMAT MEMBERS HERE (camelCase, remove hyphens, ect)*/
+
+    members.unshift(masterIdentifier)
+
+
+    //console.log("members: ", members);
 
     // assign the imported variable to object
     // need a function f: path => {member access tree}
     // use https://astexplorer.net/ to reverse engineer statements to trees
+
     let assignment = t.expressionStatement(
         t.assignmentExpression(
             "=", 
@@ -202,13 +207,12 @@ function memberExpressionChain(members, t){ //array of members
 
     if(members.length > 1){
         return t.memberExpression(
-                memberExpressionChain(members.slice(0, -1), t), //cut off  member
-                t.identifier(members[members.length - 1])
+                memberExpressionChain(members.slice(0, -1), t), //cut off member
+                t.identifier(members[members.length - 1]) 
             );
     }
     else{
         return t.identifier(members[0]);
     }
-
 }
 

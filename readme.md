@@ -1,5 +1,8 @@
 # Specify Imports
 
+**Major Readme Overhaul Needed**
+one test will fail because the file paths it creates aren't relative
+
 A Babel plugin that allows you to specify your imports based off a config file.
 
 A good use case for this plugin would be a project that will be built many different times, and each build requires a different set of components. Instead of inculding each component for every different build, you can use Specify Imports to import only the required modules for that build.
