@@ -74,8 +74,26 @@ module.exports = function ImportAssets({types: t}) {
                     let entryPointDir =_path.join(_path.dirname(sourceFileName), pathToAssetFolder, entryPoints[entry_idx]); // path of the final target dir.
                     console.log('dir!: ', entryPointDir);
 
+                    let entry = _path.basename(entryPointDir);
+                    console.log("entry: ", entry);
+
+                    // assign entry point object to asset object
+                    // this creates 'myAssets.entry = {};'
+
+                    let entryAssignment = t.expressionStatement(
+                        t.assignmentExpression(
+                            "=", 
+                            t.memberExpression( //left side of assignment
+                                t.identifier(assetsIdentifier), //object 
+                                t.identifier(entry)  //member of object
+                            ),  
+                            t.objectExpression([]) //right side of assignment
+                    ));
+                    path.insertBefore(entryAssignment);
+
+
                     // dfs import all assets starting from entrypoint
-                    treeCopy(entryPointDir, entryPointDir, path, filenameRegex, fileExtensionsToImport);
+                    treeCopy(entryPointDir, entry, path, filenameRegex, fileExtensionsToImport, t);
                     
                 }
                 // remove original import statement 
@@ -101,11 +119,7 @@ module.exports = function ImportAssets({types: t}) {
  * 
  * 
  */
-function treeCopy(curpath, rootPath, babelPath, filenameRegex, fileExtensionsToImport){
-
-    // check if explored... dont need?
-    //if(explored[curpath]) return;
-    //explored[curpath] = true;
+function treeCopy(curpath, entry, babelPath, filenameRegex, fileExtensionsToImport, t){
 
     //create object assignment
     // (curpath, root) => (root.path.to.curpath.[node at curpath]) => assign to empty obj
@@ -135,11 +149,11 @@ function treeCopy(curpath, rootPath, babelPath, filenameRegex, fileExtensionsToI
 
         if(!isDirs[i]){ //import files
 
-            makeImportStatement(curpath + '/' + files[i], files[i], babelPath);
+            makeImportStatement(curpath + _path.sep + files[i], files[i], babelPath, t);
         }
         else{ //recurse over dirs
             //append dirname to curpath
-            treeCopy(curpath + '/' + files[i], rootPath, babelPath, filenameRegex, fileExtensionsToImport);
+            treeCopy(curpath + _path.sep + files[i], entry, babelPath, filenameRegex, fileExtensionsToImport, t);
         }
     }
 }
@@ -149,48 +163,52 @@ function treeCopy(curpath, rootPath, babelPath, filenameRegex, fileExtensionsToI
  * @param {string} accessorPath 
  * @param {Object} babelPath 
  */
-function makeImportStatement(path, fileName, babelPath){
+function makeImportStatement(path, fileName, babelPath, t){
     //assign import to object assignment
-    console.log('importing ' + fileName +  ' from' + path + '; , import number: ' + importNumber);
+    console.log('importing ' + fileName +  ' from ' + path + ';');
 
-    importNumber++;
+    // generate unique identifier to hold imported file
+    let id = babelPath.scope.generateUidIdentifier("userDefinedImport");
+
+    // Generate the import declaration
+    let importDeclaration = t.importDeclaration(
+        [t.importDefaultSpecifier(id)],
+        t.stringLiteral(path)
+    );
+
+
+    //let members = path.split('/');
+    //if (members[0] === '') members.shift();
+    let members = path.split(_path.sep);
+    console.log("members ", members);
+    //need members/path relative to entry point...
+
+    // assign the imported variable to object
+    // need a function f: path => {member access tree}
+    // use https://astexplorer.net/ to reverse engineer statements to trees
+    let assignment = t.expressionStatement(
+        t.assignmentExpression(
+            "=", 
+            memberExpressionChain(members, t), //left side of assignment
+            id //right side of assignment
+    ));
+
+    babelPath.insertAfter(assignment);
+    babelPath.insertAfter(importDeclaration);
+}
+
+// chain member accessors together
+function memberExpressionChain(members, t){ //array of members
+
+    if(members.length > 1){
+        return t.memberExpression(
+                memberExpressionChain(members.slice(0, -1), t), //cut off  member
+                t.identifier(members[members.length - 1])
+            );
+    }
+    else{
+        return t.identifier(members[0]);
+    }
 
 }
 
-
-const resolvePath = (path) => {
-
-    if(_.isEmpty(data)){
-      //window.alert('Data folder is empty!');
-      console.error('*** ERROR: Data folder is empty ***');
-    }
-    let keys = path.split('/');
-
-    if (keys[0] === '') keys.shift();
-
-    // remove file extension from file (file is last key in keys)
-    keys[keys.length - 1] = keys[keys.length - 1].split('.')[0];
-
-    //remove periods from path
-    keys = keys.filter(curr => curr != '.');
-
-    //replace spaces with dashes
-    for (let i = 0; i < keys.length; i++) {
-      keys[i] = keys[i].replace(' ', '-');
-    }
-
-    // traverse through data object
-    let node = data;
-
-    for(let key in keys) {
-      try {
-            node = node[keys[key]];
-      }
-      catch{
-            console.warn('Warning: invalid data path: ' + path);
-        return null;
-      }
-      }
-
-    return node;
-  }
