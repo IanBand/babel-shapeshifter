@@ -1,6 +1,6 @@
-# Definable Include
+# Configurable Include * Definable Include * Babel Shapeshifter (working titles)
 
-# Development
+# Development:
 
 Install Jest globally with:
 ```bash
