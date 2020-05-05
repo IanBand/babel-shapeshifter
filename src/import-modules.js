@@ -1,4 +1,3 @@
-//https://github.com/IanBand/babel-specify-Imports
 const _path = require('path');
 const _fs = require('fs');
 
