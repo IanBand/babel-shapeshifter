@@ -1,8 +1,6 @@
 const _path = require('path');
 const _fs = require('fs');
 
-let importNumber = 0;
-
 module.exports = function ImportAssets({types: t}) {
     return {
         visitor: {
