@@ -1,4 +1,4 @@
-# Configurable Include * Definable Include * Babel Shapeshifter (working titles)
+#Babel Shapeshifter
 
 TODO: minimize dependencies 
 
