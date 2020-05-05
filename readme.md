@@ -1,5 +1,7 @@
 # Configurable Include * Definable Include * Babel Shapeshifter (working titles)
 
+TODO: minimize dependencies 
+
 # Development:
 
 Install Jest globally with:
