@@ -62,7 +62,7 @@ module.exports = function ImportAssets({types: t}) {
                 //for each entry point, import all assets
                 for( let entry_idx = 0; entry_idx < entryPoints.length; entry_idx++ ) {
 
-                    //console.log(entryPoints[entry_idx]);
+                    console.log(entryPoints[entry_idx]);
 
                     //skip blank or invalid entrypoints
                     if(!entryPoints[entry_idx]) continue;
@@ -148,12 +148,16 @@ function treeCopy(curpath, entry, masterIdentifier, babelPath, filenameRegex, fi
 
             makeImportStatement(curpath + _path.sep + files[i], entry, masterIdentifier, babelPath, t);
         }
-        else{ //recurse over dirs
+        else{ // assign path-member-expression to {}, then recurse into dirs
+            makeEmptyObjectAssignment(curpath + _path.sep + files[i], entry, masterIdentifier, babelPath, t);
+            
             //append dirname to curpath
             treeCopy(curpath + _path.sep + files[i], entry, masterIdentifier, babelPath, filenameRegex, fileExtensionsToImport, t);
         }
     }
 }
+//these next two functions (makeImportStatement & makeEmptyObjectAssignment)
+// are pretty simillar, there might be a better way to structure this
 
 function makeImportStatement(path, entry, masterIdentifier, babelPath, t){
     //assign import to object assignment
@@ -200,6 +204,42 @@ function makeImportStatement(path, entry, masterIdentifier, babelPath, t){
     babelPath.insertAfter(importDeclaration);
 }
 
+
+function makeEmptyObjectAssignment(path, entry, masterIdentifier, babelPath, t){
+    //assign import to object assignment
+    //console.log('importing ' + fileName +  ' from ' + path + ';');
+
+    // derive the list of member accessors
+    let dirnames = path.split(_path.sep);
+    //console.log("dirnames ", dirnames);
+    //console.log("entry index: ", dirnames.indexOf(entry));
+
+    //need members/path relative to entry point...
+    let members = dirnames.slice(dirnames.indexOf(entry));
+
+    // dont need to strip file ext because path should point to a folder
+
+    /* FORMAT MEMBERS HERE (camelCase, remove hyphens, ect)*/
+
+    members.unshift(masterIdentifier)
+
+
+    //console.log("members: ", members);
+
+    // assign the imported variable to object
+    // need a function f: path => {member access tree}
+    // use https://astexplorer.net/ to reverse engineer statements to trees
+
+    let assignment = t.expressionStatement(
+        t.assignmentExpression(
+            "=", 
+            memberExpressionChain(members, t), //left side of assignment
+            t.objectExpression([]) //right side of assignment
+    ));
+
+    babelPath.insertBefore(assignment);
+}
+
 // chain member accessors together
 function memberExpressionChain(members, t){ //array of members
 
@@ -213,4 +253,3 @@ function memberExpressionChain(members, t){ //array of members
         return t.identifier(members[0]);
     }
 }
-
